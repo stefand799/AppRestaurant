@@ -24,7 +24,7 @@ namespace AppRestaurant.Models
         
         [ForeignKey("CategoryId")]
         public virtual Category Category { get; set; }
-        public virtual ICollection<DishInMeal> DishesInMeals { get; set; } = new List<DishInMeal>();
+        public virtual ICollection<DishInMeal> DishInMeals { get; set; } = new List<DishInMeal>();
         public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     }
 }

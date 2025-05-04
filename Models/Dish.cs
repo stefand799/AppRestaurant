@@ -28,7 +28,7 @@ namespace AppRestaurant.Models
         public decimal StockQuantity { get; set; }
         
         [Required]
-        public bool Available { get; set; }
+        public bool Availability { get; set; }
         
         [Required, MaxLength(500)]
         public string ImageUrl { get; set; }
