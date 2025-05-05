@@ -1,0 +1,135 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:AppRestaurant.ViewModels.Screen.Auth"
+             xmlns:auth="clr-namespace:AppRestaurant.ViewModels.Screen.Auth"
+             mc:Ignorable="d"
+             d:DesignWidth="" d:DesignHeight=""
+             x:Class="AppRestaurant.Views.Screen.Auth.RegisterScreen"
+             x:DataType="auth:RegisterViewModel">
+
+    <Grid Background="DarkGray">
+        <!-- Use a Viewbox for responsive scaling -->
+        <Viewbox HorizontalAlignment="Center" VerticalAlignment="Center">
+            <!-- The card container will adjust size based on content and screen size -->
+            <Border Background="{DynamicResource SecondaryBrush}" CornerRadius="10" Padding="24" Width="320" HorizontalAlignment="Center">
+                <StackPanel Spacing="16">
+
+                    <!-- Title -->
+                    <TextBlock Text="Welcome"
+                               FontSize="28"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Foreground="{DynamicResource PrimaryTextBrush}" />
+
+                    <!-- Error message -->
+                    <TextBlock Text="{Binding ErrorMessage}"
+                               IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                               Foreground="Red" />
+
+                    <!-- TextBox fields (make sure they are responsive) -->
+                    <TextBox Watermark="First Name"
+                             Text="{Binding FirstName}"
+                             Height="35"
+                             Padding="8"
+                             Background="{DynamicResource WhiteBrush}"
+                             CornerRadius="5"
+                             Foreground="{DynamicResource PrimaryTextBrush}"
+                             HorizontalAlignment="Stretch" />
+                    
+                    <TextBox Watermark="Last Name"
+                             Text="{Binding LastName}"
+                             Height="35"
+                             Padding="8"
+                             Background="{DynamicResource WhiteBrush}"
+                             CornerRadius="5"
+                             Foreground="{DynamicResource PrimaryTextBrush}"
+                             HorizontalAlignment="Stretch" />
+                    
+                    <TextBox Watermark="Email"
+                             Text="{Binding Email}"
+                             Height="35"
+                             Padding="8"
+                             Background="{DynamicResource WhiteBrush}"
+                             CornerRadius="5"
+                             Foreground="{DynamicResource PrimaryTextBrush}"
+                             HorizontalAlignment="Stretch" />
+
+                    <TextBox Watermark="Delivery Address"
+                             Text="{Binding Address}"
+                             Height="35"
+                             Padding="8"
+                             Background="{DynamicResource WhiteBrush}"
+                             CornerRadius="5"
+                             Foreground="{DynamicResource PrimaryTextBrush}"
+                             HorizontalAlignment="Stretch" />
+                    
+                    <TextBox Watermark="Phone Number"
+                             Text="{Binding PhoneNumber}"
+                             Height="35"
+                             Padding="8"
+                             Background="{DynamicResource WhiteBrush}"
+                             CornerRadius="5"
+                             Foreground="{DynamicResource PrimaryTextBrush}"
+                             HorizontalAlignment="Stretch" />
+                    
+                    <TextBox Watermark="Password"
+                             Text="{Binding Password}"
+                             PasswordChar="•"
+                             Height="35"
+                             Padding="8"
+                             Background="{DynamicResource WhiteBrush}"
+                             CornerRadius="5"
+                             Foreground="{DynamicResource PrimaryTextBrush}"
+                             HorizontalAlignment="Stretch" />
+                    
+                    <TextBox Watermark="Confirm Password"
+                             Text="{Binding ConfirmPassword}"
+                             PasswordChar="•"
+                             Height="35"
+                             Padding="8"
+                             Background="{DynamicResource WhiteBrush}"
+                             CornerRadius="5"
+                             Foreground="{DynamicResource PrimaryTextBrush}"
+                             HorizontalAlignment="Stretch" />
+
+                    <!-- Buttons -->
+                    <Button Content="Register"
+                            Command="{Binding RegisterCommand}"
+                            Background="{DynamicResource SecondaryBrush}"
+                            Foreground="{DynamicResource AccentBrush}"
+                            BorderBrush="{DynamicResource PrimaryBrush}"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Center"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            Height="35"/>
+
+                    <Button Content="Login"
+                            Command="{Binding ToLoginScreenCommand}"
+                            Background="{DynamicResource PrimaryBrush}"
+                            Foreground="{DynamicResource PrimaryTextBrush}"
+                            BorderBrush="{DynamicResource PrimaryBrush}"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Center"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            Height="35"/>
+
+                    <Button Content="Continue as Guest"
+                            Command="{Binding ToGuestScreenCommand}"
+                            Background="Transparent"
+                            BorderBrush="{DynamicResource PrimaryBrush}"
+                            Foreground="{DynamicResource PrimaryBrush}"
+                            BorderThickness="1"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Center"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            Height="35"/>
+                </StackPanel>
+            </Border>
+        </Viewbox>
+    </Grid>
+</UserControl>

@@ -1,0 +1,92 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:AppRestaurant.ViewModels.Screen.Auth"
+             xmlns:auth="clr-namespace:AppRestaurant.ViewModels.Screen.Auth"
+             mc:Ignorable="d"
+             d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="AppRestaurant.Views.Screen.Auth.LoginScreen"
+             x:DataType="auth:LoginViewModel">
+
+    <Grid Background="DarkGray">
+        <!-- Use a Viewbox for responsive scaling -->
+        <Viewbox HorizontalAlignment="Center" VerticalAlignment="Center">
+            <!-- Card container with dynamic scaling -->
+            <Border Background="{DynamicResource SecondaryBrush}" CornerRadius="10" Padding="24" Width="320" HorizontalAlignment="Center">
+                <StackPanel Spacing="16">
+
+                    <!-- Title -->
+                    <TextBlock Text="Welcome Back"
+                               FontSize="28"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Foreground="{DynamicResource PrimaryTextBrush}" />
+
+                    <!-- Error message -->
+                    <TextBlock Text="{Binding ErrorMessage}"
+                               IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                               Foreground="Red" />
+
+                    <!-- Email TextBox -->
+                    <TextBox Watermark="Email"
+                             Text="{Binding Email}"
+                             Height="35"
+                             Padding="8"
+                             Background="{DynamicResource WhiteBrush}"
+                             CornerRadius="5"
+                             Foreground="{DynamicResource PrimaryTextBrush}"
+                             HorizontalAlignment="Stretch" />
+
+                    <!-- Password TextBox -->
+                    <TextBox Watermark="Password"
+                             Text="{Binding Password}"
+                             PasswordChar="•"
+                             Height="35"
+                             Padding="8"
+                             Background="{DynamicResource WhiteBrush}"
+                             CornerRadius="5"
+                             Foreground="{DynamicResource PrimaryTextBrush}"
+                             HorizontalAlignment="Stretch" />
+
+                    <!-- Login Button -->
+                    <Button Content="Login"
+                            Command="{Binding LoginCommand}"
+                            Background="{DynamicResource PrimaryBrush}"
+                            Foreground="{DynamicResource PrimaryTextBrush}"
+                            BorderBrush="{DynamicResource PrimaryBrush}"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Center"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            Height="35"/>
+
+                    <!-- Register Button -->
+                    <Button Content="Register"
+                            Command="{Binding ToRegisterScreenCommand}"
+                            Background="{DynamicResource SecondaryBrush}"
+                            Foreground="{DynamicResource AccentBrush}"
+                            BorderBrush="{DynamicResource PrimaryBrush}"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Center"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            Height="35"/>
+
+                    <!-- Continue as Guest Button -->
+                    <Button Content="Continue as Guest"
+                            Command="{Binding ToGuestScreenCommand}"
+                            Background="Transparent"
+                            BorderBrush="{DynamicResource PrimaryBrush}"
+                            Foreground="{DynamicResource PrimaryBrush}"
+                            BorderThickness="1"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Center"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            Height="35"/>
+                </StackPanel>
+            </Border>
+        </Viewbox>
+    </Grid>
+</UserControl>
