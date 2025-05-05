@@ -16,9 +16,6 @@ namespace AppRestaurant.Models
         [Required]
         public string PasswordHash { get; set; }
         
-        [Required]
-        public string PasswordSalt { get; set; }
-        
         [Required, MaxLength(50)]
         public string FirstName { get; set; }
         
