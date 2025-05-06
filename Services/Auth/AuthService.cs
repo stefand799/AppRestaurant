@@ -1,6 +1,4 @@
-using System;
 using System.Threading.Tasks;
-using AppRestaurant.Models;
 using AppRestaurant.Data;
 using AppRestaurant.Repositories.User;
 using CurrentUserService = AppRestaurant.Services.CurrentUser.CurrentUserService;
@@ -22,13 +20,13 @@ namespace AppRestaurant.Services.Auth
             _currentUserService = currentUserService;
         }
         
-        public async Task<User?> Login(string email, string password)
+        public async Task<Models.User?> Login(string email, string password)
         {
             var user = await _userRepository.GetUserByEmail(email);
             if (user == null)
                 return null;
 
-            var passwordHasher = new PasswordHasher<User>();
+            var passwordHasher = new PasswordHasher<Models.User>();
             var result = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
 
             if (result == PasswordVerificationResult.Failed)
@@ -37,13 +35,13 @@ namespace AppRestaurant.Services.Auth
             return user;
         }
         
-        public async Task<User?> Register(User user)
+        public async Task<Models.User?> Register(Models.User user)
         {
             var existingUser = await _userRepository.GetUserByEmail(user.Email);
             if (existingUser != null)
                 return null;
 
-            var passwordHasher = new PasswordHasher<User>();
+            var passwordHasher = new PasswordHasher<Models.User>();
             user.PasswordHash = passwordHasher.HashPassword(user, user.PasswordHash);
 
             await _userRepository.AddAsync(user);

@@ -5,7 +5,7 @@ namespace AppRestaurant.Services.Auth
 {
     public interface IAuthService
     {
-        Task<User?> Login(string email, string password);
-        Task<User?> Register(User user);
+        Task<Models.User?> Login(string email, string password);
+        Task<Models.User?> Register(Models.User user);
     }
 }

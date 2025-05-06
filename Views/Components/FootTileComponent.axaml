@@ -1,0 +1,83 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:AppRestaurant.ViewModels.Components"
+             mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="240"
+             x:Class="AppRestaurant.Views.Components.FoodTileComponent"
+             x:DataType="vm:FoodTileViewModel">
+
+    <!-- Main container - fixed size for consistent layout -->
+    <Border Background="White" 
+            CornerRadius="8"
+            BoxShadow="0 2 5 0 #20000000"
+            Width="200"
+            Height="240">
+        <Grid RowDefinitions="3*,2*">
+            <!-- Image part at the top -->
+            <Border Grid.Row="0" 
+                    ClipToBounds="True" 
+                    CornerRadius="8,8,0,0">
+                <Image Source="{Binding ImagePath, FallbackValue='/Assets/avalonia-logo.ico'}"
+                       Stretch="UniformToFill"/>
+            </Border>
+            
+            <!-- Info part at the bottom -->
+            <Border Grid.Row="1"
+                    Background="#FF8C00"
+                    CornerRadius="0,0,8,8">
+                <Grid RowDefinitions="*,Auto" Margin="10">
+                    <!-- Food Name -->
+                    <TextBlock Grid.Row="0" 
+                               Text="{Binding Name, FallbackValue='Food Name'}"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               FontSize="16"
+                               TextWrapping="Wrap"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                    
+                    <!-- Price -->
+                    <TextBlock Grid.Row="1"
+                               Text="{Binding Price, StringFormat='${0:F2}', FallbackValue='$9.99'}"
+                               Foreground="White"
+                               FontWeight="Bold"
+                               FontSize="14"
+                               HorizontalAlignment="Center"/>
+                </Grid>
+            </Border>
+            
+            <!-- Quantity Counter -->
+            <Border Grid.Row="0"
+                   Width="30" Height="30"
+                   VerticalAlignment="Top" HorizontalAlignment="Right"
+                   Margin="5"
+                   Background="White"
+                   BorderBrush="LightGray"
+                   BorderThickness="1"
+                   CornerRadius="15">
+                <TextBlock Text="{Binding Quantity}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           FontWeight="SemiBold"/>
+            </Border>
+            
+            <!-- Not Available Overlay -->
+            <Grid Grid.Row="0" Grid.RowSpan="2" 
+                  Background="#80000000" 
+                  IsVisible="{Binding !IsAvailable}">
+                <TextBlock Text="Not Available" 
+                           Foreground="White" 
+                           FontWeight="Bold" 
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center"/>
+            </Grid>
+            
+            <!-- Clickable overlay -->
+            <Button Grid.Row="0" Grid.RowSpan="2"
+                    Background="Transparent"
+                    Command="{Binding ViewFoodDetailsCommand}"
+                    CommandParameter="{Binding Id}"/>
+        </Grid>
+    </Border>
+</UserControl>

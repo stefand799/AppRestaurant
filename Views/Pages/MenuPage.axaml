@@ -1,0 +1,152 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:controls="using:AppRestaurant.Views.Components"
+             xmlns:vm="using:AppRestaurant.ViewModels.Pages"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="AppRestaurant.Views.Pages.MenuPage"
+             x:DataType="vm:MenuPageViewModel"
+             VerticalAlignment="Stretch"
+             HorizontalAlignment="Stretch">
+
+    <!-- Main container that ensures the control takes full space -->
+    <Grid VerticalAlignment="Stretch" 
+          HorizontalAlignment="Stretch"
+          MinHeight="300">
+          
+        <!-- The main layout grid -->
+        <Grid RowDefinitions="Auto,*">
+            <!-- Search bar -->
+            <Grid Grid.Row="0" ColumnDefinitions="*, Auto, Auto" Margin="12" Background="White">
+                <!-- Search Box -->
+                <TextBox Grid.Column="0" 
+                         Name="SearchBox"
+                         Text="{Binding SearchText}"
+                         Watermark="Search dishes..." 
+                         Margin="0,0,10,0"/>
+                
+                <!-- Filter Button with Flyout (entire button triggers flyout) -->
+                <Button Grid.Column="1" 
+                        Name="FilterButton"
+                        Content="Filters" 
+                        Margin="0,0,10,0"
+                        Padding="10,5">
+                    <Button.Flyout>
+                        <Flyout Placement="Bottom" 
+                               PlacementConstraintAdjustment="FlipY,SlideY">
+                            <StackPanel Width="220" MaxHeight="400" Spacing="10">
+                                <!-- Simplified Category Selection - Fixed to use only ItemTemplate -->
+                                <ComboBox PlaceholderText="Select Category" 
+                                          Width="220" 
+                                          HorizontalAlignment="Stretch"
+                                          ItemsSource="{Binding Categories}"
+                                          SelectedItem="{Binding SelectedCategory}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                
+                                <!-- Allergens as dropdown -->
+                                <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" Margin="0,5,0,5">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Exclude Allergens:" VerticalAlignment="Center"/>
+                                    <Button Grid.Row="0" Grid.Column="1" Content="Select" Padding="8,3">
+                                        <Button.Flyout>
+                                            <Flyout Placement="BottomEdgeAlignedRight"
+                                                   PlacementConstraintAdjustment="FlipX,FlipY,SlideX,SlideY">
+                                                <Grid Width="180" MaxHeight="300">
+                                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                                        <ItemsControl ItemsSource="{Binding Allergens}">
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <CheckBox Content="{Binding Name}" Margin="5"/>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                    </ScrollViewer>
+                                                </Grid>
+                                            </Flyout>
+                                        </Button.Flyout>
+                                    </Button>
+                                    
+                                    <!-- Show selected allergens summary -->
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                               Text="None selected" Foreground="Gray" FontSize="12" Margin="0,3,0,0"/>
+                                </Grid>
+                                
+                                <!-- Simple Search Option -->
+                                <CheckBox Content="Exclude items with search term"
+                                          IsChecked="{Binding AllergenFilterActive}"/>
+                                
+                                <!-- Availability Filter -->
+                                <CheckBox Content="Available items only" IsChecked="{Binding ShowOnlyAvailable}"/>
+                                
+                                <!-- Action Buttons in a more compact layout -->
+                                <StackPanel Orientation="Horizontal"
+                                           HorizontalAlignment="Right"
+                                           Spacing="8"
+                                           Margin="0,5,0,0">
+                                    <Button Content="Clear" 
+                                           Command="{Binding ClearFiltersCommand}"
+                                           Padding="10,5"/>
+                                    <Button Content="Apply"
+                                           Command="{Binding ApplyFiltersCommand}"
+                                           Background="#FF8C00"
+                                           Foreground="White"
+                                           Padding="10,5"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
+                
+                <!-- Search Button -->
+                <Button Grid.Column="2" 
+                        Name="SearchButton"
+                        Content="Search"
+                        Command="{Binding SearchCommand}"
+                        Padding="10,5"/>
+            </Grid>
+            
+            <!-- Food items with scrolling -->
+            <ScrollViewer Grid.Row="1" 
+                         VerticalScrollBarVisibility="Visible"
+                         HorizontalScrollBarVisibility="Disabled"
+                         VerticalAlignment="Stretch"
+                         Margin="0,0,0,10">
+                <WrapPanel Orientation="Horizontal"
+                          Margin="10">
+                    <!-- Food items from ViewModel -->
+                    <ItemsControl ItemsSource="{Binding FoodItems}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <controls:FoodTileComponent Margin="8" DataContext="{Binding}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </WrapPanel>
+            </ScrollViewer>
+            
+            <!-- Loading Indicator -->
+            <Border Grid.Row="1" 
+                   Background="#80000000" 
+                   IsVisible="{Binding IsLoading}"
+                   HorizontalAlignment="Stretch"
+                   VerticalAlignment="Stretch">
+                <StackPanel HorizontalAlignment="Center" 
+                           VerticalAlignment="Center"
+                           Spacing="10">
+                    <ProgressBar IsIndeterminate="True" Width="100"/>
+                    <TextBlock Text="Loading..." Foreground="White"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

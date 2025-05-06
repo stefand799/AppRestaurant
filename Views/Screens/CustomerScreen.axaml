@@ -1,0 +1,38 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:AppRestaurant.ViewModels"
+             xmlns:navigationBar="using:AppRestaurant.Views.Components.Navbars"
+             xmlns:controls="using:AppRestaurant.Views.Components"
+             xmlns:screens="clr-namespace:AppRestaurant.Views.Screens"
+             xmlns:pages="using:AppRestaurant.Views.Pages"
+             xmlns:vm1="clr-namespace:AppRestaurant.ViewModels.Screens"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="AppRestaurant.Views.Screens.CustomerScreen"
+             x:DataType="vm1:CustomerViewModel">
+
+    <Grid RowDefinitions="Auto,*">
+        <!-- Navigation Bar at the top -->
+        <navigationBar:NavbarCustomer Grid.Row="0" Name="CustomerNavBar" ZIndex="1"/>
+        
+        <!-- Content area - now bound to CurrentScreen -->
+        <ContentControl Grid.Row="1" Name="CustomerContent" Content="{Binding CurrentScreen}"/>
+        
+        <!-- Overlay Panel for dropdown - positioned using ZIndex to appear above content -->
+        <Border Grid.Row="1" 
+                Name="DropdownOverlay"
+                Background="Transparent" 
+                ZIndex="2"/>
+        <!-- Main Content Area - Important: Must have height set to * -->
+        <ContentControl Grid.Row="1" 
+                        Name="GuestContent" 
+                        VerticalAlignment="Stretch"
+                        HorizontalAlignment="Stretch"
+                        VerticalContentAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch">
+            <!-- Default content is MenuPage -->
+            <pages:MenuPage />
+        </ContentControl>
+    </Grid>
+</UserControl>

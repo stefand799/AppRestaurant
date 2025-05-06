@@ -4,7 +4,7 @@ namespace AppRestaurant.Services.CurrentUser
 {
     public interface ICurrentUserService
     {
-        void SetCurrentUser(User user);
+        void SetCurrentUser(Models.User user);
         void LogOut();
     }
 }

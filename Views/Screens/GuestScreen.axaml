@@ -1,0 +1,54 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:AppRestaurant.ViewModels"
+             xmlns:screens="clr-namespace:AppRestaurant.ViewModels.Screens"
+             xmlns:pages="using:AppRestaurant.Views.Pages"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="AppRestaurant.Views.Screens.GuestScreen"
+             x:DataType="screens:GuestViewModel">
+
+    <!-- Main container that takes the full available space -->
+    <Grid RowDefinitions="Auto,*">
+        <!-- Improved Guest Navbar - Equal width buttons with no spacing -->
+        <Grid Grid.Row="0" 
+              Name="GuestNavbar" 
+              Background="White"
+              ColumnDefinitions="*,*">
+            
+            <!-- Register Button - Takes 50% width -->
+            <Button Grid.Column="0" 
+                    Content="Register" 
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center"
+                    BorderThickness="0,0,1,0"
+                    BorderBrush="#DDDDDD"
+                    Background="Transparent"
+                    Padding="0,15"
+                    CornerRadius="0" Command="{Binding NavigateToRegisterCommand}"/>
+            
+            <!-- Login Button - Takes 50% width -->
+            <Button Grid.Column="1" 
+                    Content="Login" 
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center"
+                    BorderThickness="0"
+                    Background="Transparent"
+                    Padding="0,15"
+                    CornerRadius="0"
+                    Command="{Binding NavigateToLoginCommand}"/>
+        </Grid>
+
+        <!-- Main Content Area - Important: Must have height set to * -->
+        <ContentControl Grid.Row="1" 
+                      Name="GuestContent" 
+                      VerticalAlignment="Stretch"
+                      HorizontalAlignment="Stretch"
+                      VerticalContentAlignment="Stretch"
+                      HorizontalContentAlignment="Stretch">
+            <!-- Default content is MenuPage -->
+            <pages:MenuPage />
+        </ContentControl>
+    </Grid>
+</UserControl>

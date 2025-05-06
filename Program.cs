@@ -65,9 +65,9 @@ sealed class Program
         // Add ViewModels
         services.AddTransient<ViewModels.Screen.Auth.LoginViewModel>();
         services.AddTransient<ViewModels.Screen.Auth.RegisterViewModel>();
-        services.AddTransient<ViewModels.Screen.GuestViewModel>();
-        services.AddTransient<ViewModels.Screen.CustomerViewModel>();
-        services.AddTransient<ViewModels.Screen.EmployeeViewModel>();
+        services.AddTransient<ViewModels.Screens.GuestViewModel>();
+        services.AddTransient<ViewModels.Screens.CustomerViewModel>();
+        services.AddTransient<ViewModels.Screens.EmployeeViewModel>();
     
         return services.BuildServiceProvider();
     }   

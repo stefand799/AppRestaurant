@@ -1,0 +1,83 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             xmlns:vm="using:AppRestaurant.ViewModels.Screens"
+             x:Class="AppRestaurant.Views.Components.Navbars.NavbarCustomer"
+             x:DataType="vm:CustomerViewModel">
+
+    <Grid>
+        <!-- Main navigation bar - full width -->
+        <Border Background="#FF8C00" Height="50">
+            <!-- Centered toggle button spanning the full width -->
+            <ToggleButton Name="NavToggleButton" 
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          Background="Transparent"
+                          BorderThickness="0">
+                <StackPanel Orientation="Horizontal" 
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center">
+                    <TextBlock Text="Restaurant App" 
+                               VerticalAlignment="Center"
+                               FontSize="20"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               Margin="0,0,10,0"/>
+                    <Path Data="M 0,0 L 10,10 L 20,0" 
+                          Stroke="White" 
+                          StrokeThickness="2"
+                          VerticalAlignment="Center"/>
+                </StackPanel>
+            </ToggleButton>
+        </Border>
+        
+        <!-- Dropdown menu - positioned as an overlay using a Popup -->
+        <Popup IsOpen="{Binding #NavToggleButton.IsChecked}"
+               PlacementMode="Bottom"
+               PlacementTarget="{Binding #NavToggleButton}"
+               Width="{Binding #NavToggleButton.Bounds.Width}">
+            <Border Background="White" 
+                    BorderBrush="LightGray" 
+                    BorderThickness="1"
+                    BoxShadow="0 4 8 0 #20000000"
+                    Width="{Binding #NavToggleButton.Bounds.Width}">
+                <StackPanel Margin="10">
+                    <Button Content="Menu" 
+                            Command="{Binding NavigateToMenuScreenCommand}"
+                            HorizontalAlignment="Stretch" 
+                            HorizontalContentAlignment="Left"
+                            Margin="0,5"/>
+
+                    <Button Content="Profile" 
+                            Command="{Binding NavigateToProfileScreenCommand}"
+                            HorizontalAlignment="Stretch" 
+                            HorizontalContentAlignment="Left"
+                            Margin="0,5"/>
+
+                    <Button Content="My Orders" 
+                            Command="{Binding NavigateToOrdersScreenCommand}"
+                            HorizontalAlignment="Stretch" 
+                            HorizontalContentAlignment="Left"
+                            Margin="0,5"/>
+
+                    <Button Content="Cart" 
+                            Command="{Binding NavigateToCartScreenCommand}"
+                            HorizontalAlignment="Stretch" 
+                            HorizontalContentAlignment="Left"
+                            Margin="0,5"/>
+
+                    <Button Content="Logout" 
+                            Command="{Binding LogOutCommand}"
+                            HorizontalAlignment="Stretch" 
+                            HorizontalContentAlignment="Left"
+                            Margin="0,5"
+                            Foreground="Red"/>
+                    
+                    <Separator Margin="0,5"/>
+                </StackPanel>
+            </Border>
+        </Popup>
+    </Grid>
+</UserControl>

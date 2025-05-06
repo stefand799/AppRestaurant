@@ -5,10 +5,10 @@ namespace AppRestaurant.Services.CurrentUser
 {
     public class CurrentUserService : ICurrentUserService
     {
-        private User _currentUser;
-        public event EventHandler<User> UserChanged;
+        private Models.User _currentUser;
+        public event EventHandler<Models.User> UserChanged;
 
-        public User CurrentUser
+        public Models.User CurrentUser
         {
             get => _currentUser;
             set
@@ -29,7 +29,7 @@ namespace AppRestaurant.Services.CurrentUser
             CurrentUser = null;
         }
         
-        public void SetCurrentUser(User user)
+        public void SetCurrentUser(Models.User user)
         {
             CurrentUser = user;
         }

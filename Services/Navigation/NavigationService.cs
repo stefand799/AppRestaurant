@@ -5,14 +5,14 @@ using System;
 using System.Collections.Generic;
 using LoginViewModel = AppRestaurant.ViewModels.Screen.Auth.LoginViewModel;
 using RegisterViewModel = AppRestaurant.ViewModels.Screen.Auth.RegisterViewModel;
-using GuestViewModel = AppRestaurant.ViewModels.Screen.GuestViewModel;
-using CustomerViewModel = AppRestaurant.ViewModels.Screen.CustomerViewModel;
-using EmployeeViewModel = AppRestaurant.ViewModels.Screen.EmployeeViewModel;
+using GuestViewModel = AppRestaurant.ViewModels.Screens.GuestViewModel;
+using CustomerViewModel = AppRestaurant.ViewModels.Screens.CustomerViewModel;
+using EmployeeViewModel = AppRestaurant.ViewModels.Screens.EmployeeViewModel;
 using LoginScreen = AppRestaurant.Views.Screen.Auth.LoginScreen;
 using RegisterScreen = AppRestaurant.Views.Screen.Auth.RegisterScreen;
-using GuestScreen = AppRestaurant.Views.Screen.GuestScreen;
-using CustomerScreen = AppRestaurant.Views.Screen.CustomerScreen;
-using EmployeeScreen = AppRestaurant.Views.Screen.EmployeeScreen;
+using GuestScreen = AppRestaurant.Views.Screens.GuestScreen;
+using CustomerScreen = AppRestaurant.Views.Screens.CustomerScreen;
+using EmployeeScreen = AppRestaurant.Views.Screens.EmployeeScreen;
 
 namespace AppRestaurant.Services.Navigation
 {
