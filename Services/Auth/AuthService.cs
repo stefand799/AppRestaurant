@@ -1,23 +1,21 @@
 using System.Threading.Tasks;
-using AppRestaurant.Data;
 using AppRestaurant.Repositories.User;
-using CurrentUserService = AppRestaurant.Services.CurrentUser.CurrentUserService;
+using AppRestaurant.Services.CurrentUser;
 using Microsoft.AspNetCore.Identity;
 
 namespace AppRestaurant.Services.Auth
 {
-
     public class AuthService : IAuthService
     {
-        private readonly AppRestaurantDbContext _dbContext;
         private readonly IUserRepository _userRepository;
-        private readonly CurrentUserService _currentUserService;
+        private readonly ICurrentUserService _currentUserService;
+        private readonly PasswordHasher<Models.User> _passwordHasher;
 
-        public AuthService(AppRestaurantDbContext dbContext, IUserRepository userRepository, CurrentUserService currentUserService)
+        public AuthService(IUserRepository userRepository, ICurrentUserService currentUserService, PasswordHasher<Models.User> passwordHasher)
         {
-            _dbContext = dbContext;
             _userRepository = userRepository;
             _currentUserService = currentUserService;
+            _passwordHasher = passwordHasher;
         }
         
         public async Task<Models.User?> Login(string email, string password)
@@ -26,8 +24,7 @@ namespace AppRestaurant.Services.Auth
             if (user == null)
                 return null;
 
-            var passwordHasher = new PasswordHasher<Models.User>();
-            var result = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
+            var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
 
             if (result == PasswordVerificationResult.Failed)
                 return null;
@@ -41,14 +38,12 @@ namespace AppRestaurant.Services.Auth
             if (existingUser != null)
                 return null;
 
-            var passwordHasher = new PasswordHasher<Models.User>();
-            user.PasswordHash = passwordHasher.HashPassword(user, user.PasswordHash);
+            user.PasswordHash = _passwordHasher.HashPassword(user, user.PasswordHash);
 
             await _userRepository.AddAsync(user);
-            await _dbContext.SaveChangesAsync();
+            await _userRepository.SaveAsync();
 
             return user;
         }
-
     }
 }

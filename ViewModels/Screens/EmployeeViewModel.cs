@@ -1,3 +1,4 @@
+using AppRestaurant.Services.CurrentUser;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -34,7 +35,7 @@ namespace AppRestaurant.ViewModels.Screens
             }
     
             // Navigate back to the login page
-            _navigationService.NavigateToLogin();
+            _navigationService.ToLoginScreen();
         }
         
         // Menu Management Screens

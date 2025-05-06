@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              xmlns:vm="using:AppRestaurant.ViewModels.Screens"
-             x:Class="AppRestaurant.Views.Components.Navbars.NavigationBarEmployee"
+             x:Class="AppRestaurant.Views.Components.Navbars.NavbarEmployee"
              x:DataType="vm:EmployeeViewModel">
 
     <Grid>

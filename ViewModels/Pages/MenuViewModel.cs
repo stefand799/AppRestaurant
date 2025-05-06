@@ -1,16 +1,19 @@
+using System;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using AppRestaurant.Models;
+using AppRestaurant.Services.Menu;
 using AppRestaurant.ViewModels.Components;
-using System.Linq;
-using System;
-using AppRestaurant.ViewModels;
 
 namespace AppRestaurant.ViewModels.Pages
 {
     public partial class MenuPageViewModel : ViewModelBase
     {
+        private readonly IMenuService _menuService;
+
         // Properties for search and filtering
         [ObservableProperty]
         private string _searchText = string.Empty;
@@ -45,16 +48,158 @@ namespace AppRestaurant.ViewModels.Pages
         [ObservableProperty]
         private bool _isLoading = false;
         
+        // Default constructor for design-time
         public MenuPageViewModel()
         {
-            // In a real application, these would be loaded from a service
-            // For now, we'll just create some dummy data
+            // In design time, just load some dummy data
             LoadDummyData();
+        }
+        
+        // Constructor with dependencies for runtime
+        public MenuPageViewModel(IMenuService menuService)
+        {
+            _menuService = menuService;
+            
+            // Load data asynchronously
+            Task.Run(async () => await LoadDataAsync());
+        }
+        
+        private async Task LoadDataAsync()
+        {
+            try
+            {
+                IsLoading = true;
+                
+                // Load categories
+                var categoriesResult = await _menuService.GetAllCategoriesAsync();
+                Categories.Clear();
+                foreach (var category in categoriesResult)
+                {
+                    Categories.Add(category);
+                }
+                
+                // Load allergens
+                var allergensResult = await _menuService.GetAllAllergensAsync();
+                Allergens.Clear();
+                foreach (var allergen in allergensResult)
+                {
+                    Allergens.Add(allergen);
+                }
+                
+                // Load dishes and meals
+                await LoadMenuItemsAsync();
+            }
+            catch (Exception ex)
+            {
+                // In real app, handle this error (log it, show message, etc.)
+                Console.WriteLine($"Error loading data: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+        
+        private async Task LoadMenuItemsAsync()
+        {
+            try
+            {
+                FoodItems.Clear();
+                
+                // Get all dishes
+                var dishes = await _menuService.GetAllDishesAsync();
+                
+                // Filter if needed
+                if (ShowOnlyAvailable)
+                {
+                    dishes = dishes.Where(d => d.Availability).ToList();
+                }
+                
+                if (SelectedCategory != null)
+                {
+                    dishes = dishes.Where(d => d.CategoryId == SelectedCategory.Id).ToList();
+                }
+                
+                if (!string.IsNullOrWhiteSpace(SearchText))
+                {
+                    dishes = dishes.Where(d => d.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
+                }
+                
+                if (AllergenFilterActive && SelectedAllergens.Any())
+                {
+                    var allergenIds = SelectedAllergens.Select(a => a.Id).ToList();
+                    dishes = dishes.Where(d => 
+                        !d.Allergens.Any(a => allergenIds.Contains(a.Id))).ToList();
+                }
+                
+                // Map dishes to FoodTileViewModel
+                foreach (var dish in dishes)
+                {
+                    FoodItems.Add(new FoodTileViewModel
+                    {
+                        Id = dish.Id,
+                        Name = dish.Name,
+                        Price = dish.Price,
+                        ImagePath = dish.ImageUrl,
+                        IsAvailable = dish.Availability,
+                        ItemType = "Dish"
+                    });
+                }
+                
+                // Get all meals
+                var meals = await _menuService.GetAllMealsAsync();
+                
+                // Filter if needed
+                if (SelectedCategory != null)
+                {
+                    meals = meals.Where(m => m.CategoryId == SelectedCategory.Id).ToList();
+                }
+                
+                if (!string.IsNullOrWhiteSpace(SearchText))
+                {
+                    meals = meals.Where(m => m.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
+                }
+                
+                // Check availability for each meal
+                foreach (var meal in meals)
+                {
+                    bool isAvailable = await _menuService.CheckMealAvailabilityAsync(meal.Id);
+                    
+                    if (ShowOnlyAvailable && !isAvailable)
+                    {
+                        continue;
+                    }
+                    
+                    // Calculate final price with discount
+                    decimal finalPrice = await _menuService.CalculateMealPriceAsync(meal.Id);
+                    
+                    FoodItems.Add(new FoodTileViewModel
+                    {
+                        Id = meal.Id,
+                        Name = meal.Name,
+                        Price = finalPrice,
+                        ImagePath = meal.ImageUrl,
+                        IsAvailable = isAvailable,
+                        ItemType = "Meal"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading menu items: {ex.Message}");
+                
+                // If we fail to load actual data, load dummy data for development
+                if (_menuService == null)
+                {
+                    LoadDummyData();
+                }
+            }
         }
         
         private void LoadDummyData()
         {
             // Add some mock categories
+            Categories.Clear();
             Categories.Add(new Category { Id = 1, Name = "Appetizers" });
             Categories.Add(new Category { Id = 2, Name = "Main Dishes" });
             Categories.Add(new Category { Id = 3, Name = "Sides" });
@@ -62,6 +207,7 @@ namespace AppRestaurant.ViewModels.Pages
             Categories.Add(new Category { Id = 5, Name = "Beverages" });
             
             // Add some mock allergens
+            Allergens.Clear();
             Allergens.Add(new Allergen { Id = 1, Name = "Gluten" });
             Allergens.Add(new Allergen { Id = 2, Name = "Dairy" });
             Allergens.Add(new Allergen { Id = 3, Name = "Nuts" });
@@ -76,6 +222,7 @@ namespace AppRestaurant.ViewModels.Pages
             
             Random random = new Random();
             
+            FoodItems.Clear();
             for (int i = 0; i < 12; i++)
             {
                 FoodItems.Add(new FoodTileViewModel
@@ -91,53 +238,45 @@ namespace AppRestaurant.ViewModels.Pages
         }
         
         [RelayCommand]
-        private void Search()
+        private async Task Search()
         {
             IsLoading = true;
             
-            // In a real application, this would filter the items based on search criteria
-            LoadDummyData(); // Reload dummy data
-            
-            // Apply search filter if search text is not empty
-            if (!string.IsNullOrWhiteSpace(SearchText))
+            try
             {
-                var filteredItems = FoodItems.Where(item => 
-                    item.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
-                
-                FoodItems.Clear();
-                foreach (var item in filteredItems)
-                {
-                    FoodItems.Add(item);
-                }
+                await LoadMenuItemsAsync();
             }
-            
-            IsLoading = false;
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during search: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
         
         [RelayCommand]
-        private void ApplyFilters()
+        private async Task ApplyFilters()
         {
             IsLoading = true;
             
-            // In a real application, this would apply selected filters
-            Search();
-            
-            // Apply availability filter if selected
-            if (ShowOnlyAvailable)
+            try
             {
-                var availableItems = FoodItems.Where(item => item.IsAvailable).ToList();
-                FoodItems.Clear();
-                foreach (var item in availableItems)
-                {
-                    FoodItems.Add(item);
-                }
+                await LoadMenuItemsAsync();
             }
-            
-            IsLoading = false;
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error applying filters: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
         
         [RelayCommand]
-        private void ClearFilters()
+        private async Task ClearFilters()
         {
             SearchText = string.Empty;
             SelectedCategory = null;
@@ -145,49 +284,62 @@ namespace AppRestaurant.ViewModels.Pages
             AllergenFilterActive = false;
             SelectedAllergens.Clear();
             
-            // Reload all items
-            LoadDummyData();
+            IsLoading = true;
+            
+            try
+            {
+                await LoadMenuItemsAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error clearing filters: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
         
         [RelayCommand]
-        private void SelectCategory(Category category)
+        private async Task SelectCategory(Category category)
         {
             IsLoading = true;
             
-            CurrentCategory = category;
-            
-            // Reload dummy data
-            LoadDummyData();
-            
-            // Apply category filter
-            if (category != null)
+            try
             {
-                // In a real app, this would filter by actual category
-                // For demo, we'll just take a subset based on category ID
-                int itemCount = category.Id switch
-                {
-                    1 => 4,  // Appetizers
-                    2 => 6,  // Main Dishes
-                    3 => 3,  // Sides
-                    4 => 2,  // Desserts
-                    5 => 3,  // Beverages
-                    _ => 12  // All
-                };
-                
-                while (FoodItems.Count > itemCount)
-                {
-                    FoodItems.RemoveAt(FoodItems.Count - 1);
-                }
+                CurrentCategory = category;
+                SelectedCategory = category;
+                await LoadMenuItemsAsync();
             }
-            
-            IsLoading = false;
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error selecting category: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
         
         [RelayCommand]
-        private void SelectAllCategories()
+        private async Task SelectAllCategories()
         {
-            CurrentCategory = null;
-            LoadDummyData(); // Show all items
+            IsLoading = true;
+            
+            try
+            {
+                CurrentCategory = null;
+                SelectedCategory = null;
+                await LoadMenuItemsAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error selecting all categories: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
         
         [RelayCommand]

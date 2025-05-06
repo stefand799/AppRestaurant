@@ -41,13 +41,13 @@ namespace AppRestaurant.ViewModels.Screens
         [RelayCommand]
         public void NavigateToLogin()
         {
-            _navigationService.NavigateToLogin();
+            _navigationService.ToLoginScreen();
         }
 
         [RelayCommand]
         private void NavigateToRegister()
         {
-            _navigationService.NavigateToRegister();
+            _navigationService.ToRegisterScreen();
         }
         
         [RelayCommand]

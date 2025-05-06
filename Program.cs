@@ -3,11 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using AppRestaurant.Data;
-using AppRestaurant.Repositories;
+using AppRestaurant.Repositories.Base;
 using AppRestaurant.Repositories.User;
+using AppRestaurant.Repositories.Category;
+using AppRestaurant.Repositories.Dish;
+using AppRestaurant.Repositories.Meal;
+using AppRestaurant.Repositories.Allergen;
+using AppRestaurant.Repositories.Order;
+using AppRestaurant.Repositories.OrderItem;
+using AppRestaurant.Repositories.DishInMeal;
 using AppRestaurant.Services.Auth;
 using AppRestaurant.Services.CurrentUser;
 using AppRestaurant.Services.Navigation;
+using AppRestaurant.Services.Menu;
+using AppRestaurant.Services.Order;
 using Microsoft.AspNetCore.Identity;
 using AppRestaurant.Models;
 
@@ -51,11 +60,20 @@ sealed class Program
         
         // Register repositories
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<IDishRepository, DishRepository>();
+        services.AddScoped<IMealRepository, MealRepository>();
+        services.AddScoped<IAllergenRepository, AllergenRepository>();
+        services.AddScoped<IOrderRepository, OrderRepository>();
+        services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+        services.AddScoped<IDishInMealRepository, DishInMealRepository>();
     
         // Register services
         services.AddSingleton<CurrentUserService>();
         services.AddScoped<ICurrentUserService>(provider => provider.GetRequiredService<CurrentUserService>());
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IMenuService, MenuService>();
+        services.AddScoped<IOrderService, OrderService>();
     
         // Use the singleton instance of NavigationService
         services.AddSingleton<INavigationService>(provider => NavigationService.Instance);
@@ -68,6 +86,7 @@ sealed class Program
         services.AddTransient<ViewModels.Screens.GuestViewModel>();
         services.AddTransient<ViewModels.Screens.CustomerViewModel>();
         services.AddTransient<ViewModels.Screens.EmployeeViewModel>();
+        services.AddTransient<ViewModels.Pages.MenuPageViewModel>();
     
         return services.BuildServiceProvider();
     }   

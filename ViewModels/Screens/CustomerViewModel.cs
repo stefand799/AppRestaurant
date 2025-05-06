@@ -7,6 +7,7 @@ using AppRestaurant.ViewModels.Components;
 using AppRestaurant.ViewModels.Pages;
 using AppRestaurant.Views.Pages;
 using System;
+using AppRestaurant.Services.CurrentUser;
 using AppRestaurant.Services.User;
 
 namespace AppRestaurant.ViewModels.Screens
@@ -53,7 +54,7 @@ namespace AppRestaurant.ViewModels.Screens
             }
     
             // Navigate back to the login page
-            _navigationService.NavigateToLogin();
+            _navigationService.ToLoginScreen();
         }
         
         [RelayCommand]
