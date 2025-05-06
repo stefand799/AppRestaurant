@@ -16,7 +16,7 @@ namespace AppRestaurant.ViewModels.Screen.Auth
 
         public LoginViewModel()
         {
-            _navigationService = null;
+            _navigationService = NavigationService.Instance;
             _authService = null;
             _currentUserService = null;
         }
@@ -37,8 +37,9 @@ namespace AppRestaurant.ViewModels.Screen.Auth
         [ObservableProperty]
         private string _errorMessage = string.Empty;
 
+        // Change this from RelayCommand to IRelayCommand and make it public
         [RelayCommand]
-        private async Task LoginCommand()
+        public async Task Login()
         {
             ErrorMessage = string.Empty;
 
@@ -47,6 +48,13 @@ namespace AppRestaurant.ViewModels.Screen.Auth
                 if (string.IsNullOrEmpty(Email) || string.IsNullOrEmpty(Password))
                 {
                     ErrorMessage = "Email and password are required.";
+                    return;
+                }
+
+                if (_authService == null)
+                {
+                    // For development/testing
+                    NavigationService.Instance.ToGuestScreen();
                     return;
                 }
 
@@ -79,13 +87,13 @@ namespace AppRestaurant.ViewModels.Screen.Auth
         }
 
         [RelayCommand]
-        private void ToRegisterScreenCommand()
+        public void ToRegisterScreen()
         {
             NavigationService.Instance.ToRegisterScreen();
         }
 
         [RelayCommand]
-        private void ToGuestScreenCommand()
+        public void ToGuestScreen()
         {
             NavigationService.Instance.ToGuestScreen();
         }

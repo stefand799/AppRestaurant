@@ -1,16 +1,23 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls;
 using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using Avalonia.Markup.Xaml;
 using AppRestaurant.ViewModels;
 using AppRestaurant.Views;
+using AppRestaurant.Services.Navigation;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace AppRestaurant;
 
 public partial class App : Application
 {
+    // Static property to store the service provider
+    public static ServiceProvider ServiceProvider { get; set; }
+    
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
@@ -20,13 +27,35 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
-            // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
+            // Avoid duplicate validations from both Avalonia and the CommunityToolkit
             DisableAvaloniaDataAnnotationValidation();
-            desktop.MainWindow = new MainWindow
+            
+            var mainWindow = new MainWindow();
+            desktop.MainWindow = mainWindow;
+            
+            if (ServiceProvider != null)
             {
-                DataContext = new MainWindowViewModel(),
-            };
+                // Initialize navigation after window is ready
+                mainWindow.Opened += (s, e) => 
+                {
+                    var contentControl = mainWindow.FindControl<ContentControl>("MainContent");
+                    if (contentControl != null)
+                    {
+                        var navigationService = ServiceProvider.GetRequiredService<INavigationService>();
+                        navigationService.Initialize(contentControl, ServiceProvider);
+                        navigationService.ToLoginScreen();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error: MainContent control not found in MainWindow");
+                    }
+                };
+            }
+            else
+            {
+                Console.WriteLine("Warning: ServiceProvider not configured");
+                mainWindow.DataContext = new MainWindowViewModel();
+            }
         }
 
         base.OnFrameworkInitializationCompleted();
@@ -44,4 +73,4 @@ public partial class App : Application
             BindingPlugins.DataValidators.Remove(plugin);
         }
     }
-}
+}   

@@ -40,7 +40,7 @@ namespace AppRestaurant.ViewModels.Screen.Auth
         [ObservableProperty] private string _errorMessage = string.Empty;
 
         [RelayCommand]
-        private async Task RegisterCommand()
+        public async Task RegisterCommand()
         {
             ErrorMessage = string.Empty;
 

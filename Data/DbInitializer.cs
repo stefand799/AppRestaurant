@@ -28,7 +28,7 @@ namespace AppRestaurant.Data
                 Console.WriteLine("Added categories");
             }
 
-            if (!await context.Categories.AnyAsync())
+            if (!await context.Allergens.AnyAsync())
             {
                 var allergens = new List<Allergen>
                 {
@@ -90,6 +90,7 @@ namespace AppRestaurant.Data
                         StockQuantity = 50,
                         Availability = true,
                         CategoryId = categories.First(c => c.Name == "Appetizers").Id,
+                        ImageUrl = "/Assets/Images/caesar_salad.jpg",
                         Allergens = new List<Allergen>
                         {
                             allergens.First(a => a.Name == "Gluten"),
@@ -105,6 +106,7 @@ namespace AppRestaurant.Data
                         StockQuantity = 40,
                         Availability = true,
                         CategoryId = categories.First(c => c.Name == "Main Dishes").Id,
+                        ImageUrl = "/Assets/Images/spaghetti_carbonara.jpg",
                         Allergens = new List<Allergen>
                         {
                             allergens.First(a => a.Name == "Gluten"),
@@ -121,6 +123,7 @@ namespace AppRestaurant.Data
                         StockQuantity = 100,
                         Availability = true,
                         CategoryId = categories.First(c => c.Name == "Sides").Id,
+                        ImageUrl = "/Assets/Images/french_fries.jpg",
                         Allergens = new List<Allergen>
                         {
                             allergens.First(a => a.Name == "Gluten")
@@ -135,6 +138,7 @@ namespace AppRestaurant.Data
                         StockQuantity = 30,
                         Availability = true,
                         CategoryId = categories.First(c => c.Name == "Desserts").Id,
+                        ImageUrl = "/Assets/Images/chocolate_cake.jpg",
                         Allergens = new List<Allergen>
                         {
                             allergens.First(a => a.Name == "Gluten"),
@@ -152,6 +156,7 @@ namespace AppRestaurant.Data
                         StockQuantity = 200,
                         Availability = true,
                         CategoryId = categories.First(c => c.Name == "Beverages").Id,
+                        ImageUrl = "/Assets/Images/coca_cola.jpg",
                         Allergens = new List<Allergen>()
                     }
                 };

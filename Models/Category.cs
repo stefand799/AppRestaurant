@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AppRestaurant.Models
 {
-    [Table("Categoies")]
+    [Table("Categories")]
     public class Category
     {
         [Key]
