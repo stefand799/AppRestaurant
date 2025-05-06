@@ -14,7 +14,7 @@ namespace AppRestaurant.Views.Pages
             // Initialize with an empty ViewModel if none is provided
             if (DataContext == null)
             {
-                DataContext = new MenuPageViewModel();
+                DataContext = new MenuViewModel();
             }
         }
     }

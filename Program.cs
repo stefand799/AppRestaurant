@@ -86,7 +86,7 @@ sealed class Program
         services.AddTransient<ViewModels.Screens.GuestViewModel>();
         services.AddTransient<ViewModels.Screens.CustomerViewModel>();
         services.AddTransient<ViewModels.Screens.EmployeeViewModel>();
-        services.AddTransient<ViewModels.Pages.MenuPageViewModel>();
+        services.AddTransient<ViewModels.Pages.MenuViewModel>();
     
         return services.BuildServiceProvider();
     }   

@@ -27,7 +27,7 @@ namespace AppRestaurant.ViewModels.Screens
             
             // Set default screen with its ViewModel
             var menuPage = new MenuPage();
-            menuPage.DataContext = new MenuPageViewModel();
+            menuPage.DataContext = new MenuViewModel();
             CurrentScreen = menuPage;
         }
 
@@ -38,10 +38,12 @@ namespace AppRestaurant.ViewModels.Screens
             
             // Set default screen with its ViewModel
             var menuPage = new MenuPage();
-            menuPage.DataContext = new MenuPageViewModel();
+            menuPage.DataContext = new MenuViewModel();
             CurrentScreen = menuPage;
         }
 
+        
+        
 // In CustomerViewModel.cs
         [RelayCommand]
         private void LogOut()
@@ -61,7 +63,7 @@ namespace AppRestaurant.ViewModels.Screens
         private void NavigateToMenuScreen()
         {
             var menuPage = new MenuPage();
-            menuPage.DataContext = new MenuPageViewModel();
+            menuPage.DataContext = new MenuViewModel();
             CurrentScreen = menuPage;
         }
         
@@ -105,10 +107,21 @@ namespace AppRestaurant.ViewModels.Screens
         // This method will be called by the FoodTile's ViewFoodDetailsCommand
         // and propagated up to this ViewModel
         [RelayCommand]
-        private void ViewFoodDetails(int foodItemId)
+        public void ViewFoodDetails(int foodItemId)
         {
-            // Navigate to the food item screen with the given ID
-            NavigateToFoodItemScreen(foodItemId);
+            // Create the product item page
+            var productItemPage = new ProductItemPage();
+            
+            // Create and initialize the view model with the food item ID
+            var viewModel = new ProductItemPageViewModel();
+            viewModel.Initialize(foodItemId); // This calls the IParametrizedViewModel.Initialize method
+            
+            // Set the data context and navigate
+            productItemPage.DataContext = viewModel;
+            CurrentScreen = productItemPage;
+            
+            Console.WriteLine($"Navigating to food item details for ID: {foodItemId}");
         }
+        
     }
 }

@@ -96,13 +96,13 @@ namespace AppRestaurant.ViewModels.Screen.Auth
         }
 
         [RelayCommand]
-        private void ToLoginScreenCommand()
+        public void ToLoginScreenCommand()
         {
             _navigationService.ToLoginScreen();
         }
         
         [RelayCommand]
-        private void ToGuestScreenCommand()
+        public void ToGuestScreenCommand()
         {
             NavigationService.Instance.ToGuestScreen();
         }

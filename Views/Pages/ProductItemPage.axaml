@@ -9,7 +9,7 @@
 
     <ScrollViewer>
         <StackPanel Spacing="15" Margin="20">
-            <!-- Back Button -->
+            <!-- In ProductItemPage.axaml -->
             <Button HorizontalAlignment="Left" 
                     Margin="0,0,0,10"
                     Command="{Binding NavigateBackCommand}">
@@ -18,6 +18,18 @@
                     <TextBlock Text="Back to Menu" VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
+            
+            <Border Background="#80000000" 
+                    IsVisible="{Binding IsLoading}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch">
+                <StackPanel HorizontalAlignment="Center" 
+                            VerticalAlignment="Center"
+                            Spacing="10">
+                    <ProgressBar IsIndeterminate="True" Width="100"/>
+                    <TextBlock Text="Loading..." Foreground="White"/>
+                </StackPanel>
+            </Border>
             
             <!-- Image Carousel -->
             <Border Background="#F5F5F5" CornerRadius="8" Height="300">

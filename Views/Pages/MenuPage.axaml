@@ -6,7 +6,7 @@
              xmlns:vm="using:AppRestaurant.ViewModels.Pages"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="AppRestaurant.Views.Pages.MenuPage"
-             x:DataType="vm:MenuPageViewModel"
+             x:DataType="vm:MenuViewModel"
              VerticalAlignment="Stretch"
              HorizontalAlignment="Stretch">
 
@@ -36,7 +36,7 @@
                         <Flyout Placement="Bottom" 
                                PlacementConstraintAdjustment="FlipY,SlideY">
                             <StackPanel Width="220" MaxHeight="400" Spacing="10">
-                                <!-- Simplified Category Selection - Fixed to use only ItemTemplate -->
+                                <!-- Category Selection -->
                                 <ComboBox PlaceholderText="Select Category" 
                                           Width="220" 
                                           HorizontalAlignment="Stretch"
@@ -49,41 +49,33 @@
                                     </ComboBox.ItemTemplate>
                                 </ComboBox>
                                 
-                                <!-- Allergens as dropdown -->
-                                <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" Margin="0,5,0,5">
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Exclude Allergens:" VerticalAlignment="Center"/>
-                                    <Button Grid.Row="0" Grid.Column="1" Content="Select" Padding="8,3">
-                                        <Button.Flyout>
-                                            <Flyout Placement="BottomEdgeAlignedRight"
-                                                   PlacementConstraintAdjustment="FlipX,FlipY,SlideX,SlideY">
-                                                <Grid Width="180" MaxHeight="300">
-                                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                                        <ItemsControl ItemsSource="{Binding Allergens}">
-                                                            <ItemsControl.ItemTemplate>
-                                                                <DataTemplate>
-                                                                    <CheckBox Content="{Binding Name}" Margin="5"/>
-                                                                </DataTemplate>
-                                                            </ItemsControl.ItemTemplate>
-                                                        </ItemsControl>
-                                                    </ScrollViewer>
-                                                </Grid>
-                                            </Flyout>
-                                        </Button.Flyout>
-                                    </Button>
-                                    
-                                    <!-- Show selected allergens summary -->
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
-                                               Text="None selected" Foreground="Gray" FontSize="12" Margin="0,3,0,0"/>
-                                </Grid>
+                                <!-- Allergens selection - Using ListBox with multi-select -->
+                                <TextBlock Text="Exclude Allergens:" Margin="0,5,0,5"/>
+                                <ListBox ItemsSource="{Binding Allergens}"
+                                         SelectionMode="Multiple"
+                                         MaxHeight="150">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}" Margin="5"/>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
                                 
-                                <!-- Simple Search Option -->
-                                <CheckBox Content="Exclude items with search term"
+                                <!-- Show selected allergens summary -->
+                                <TextBlock Text="{Binding AllergenSelectionSummary}" 
+                                           Foreground="Gray" 
+                                           FontSize="12" 
+                                           Margin="0,3,0,5"/>
+                                
+                                <!-- Filter by allergens toggle -->
+                                <CheckBox Content="Exclude items with selected allergens"
                                           IsChecked="{Binding AllergenFilterActive}"/>
                                 
                                 <!-- Availability Filter -->
-                                <CheckBox Content="Available items only" IsChecked="{Binding ShowOnlyAvailable}"/>
+                                <CheckBox Content="Available items only" 
+                                          IsChecked="{Binding ShowOnlyAvailable}"/>
                                 
-                                <!-- Action Buttons in a more compact layout -->
+                                <!-- Action Buttons -->
                                 <StackPanel Orientation="Horizontal"
                                            HorizontalAlignment="Right"
                                            Spacing="8"
@@ -107,6 +99,8 @@
                         Name="SearchButton"
                         Content="Search"
                         Command="{Binding SearchCommand}"
+                        Background="#FF8C00"
+                        Foreground="White"
                         Padding="10,5"/>
             </Grid>
             
@@ -116,22 +110,33 @@
                          HorizontalScrollBarVisibility="Disabled"
                          VerticalAlignment="Stretch"
                          Margin="0,0,0,10">
-                <WrapPanel Orientation="Horizontal"
-                          Margin="10">
-                    <!-- Food items from ViewModel -->
-                    <ItemsControl ItemsSource="{Binding FoodItems}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel Orientation="Horizontal"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <controls:FoodTileComponent Margin="8" DataContext="{Binding}"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </WrapPanel>
+                <!-- No results message -->
+                <Panel>
+                    <TextBlock Text="No items found matching your criteria." 
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              Margin="0,50,0,0"
+                              FontSize="18"
+                              Foreground="Gray"
+                              IsVisible="{Binding !FoodItems.Count}"/>
+                              
+                    <WrapPanel Orientation="Horizontal"
+                              Margin="10">
+                        <!-- Food items from ViewModel -->
+                        <ItemsControl ItemsSource="{Binding FoodItems}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <controls:FoodTileComponent Margin="8" DataContext="{Binding}"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </WrapPanel>
+                </Panel>
             </ScrollViewer>
             
             <!-- Loading Indicator -->

@@ -13,7 +13,7 @@ namespace AppRestaurant.Services.Menu
 {
     public class MenuService : IMenuService
     {
-        private readonly ICategoryRepository _categoryRepository;
+                private readonly ICategoryRepository _categoryRepository;
         private readonly IDishRepository _dishRepository;
         private readonly IMealRepository _mealRepository;
         private readonly IAllergenRepository _allergenRepository;
@@ -33,6 +33,86 @@ namespace AppRestaurant.Services.Menu
             _allergenRepository = allergenRepository;
             _dishInMealRepository = dishInMealRepository;
             _mealDiscountPercentage = AppConfiguration.MealDiscountPercentage;
+        }
+
+        // Add this method to search dishes by multiple criteria
+        public async Task<IEnumerable<Dish>> SearchDishesAsync(
+            string searchTerm = null, 
+            int? categoryId = null, 
+            bool onlyAvailable = false,
+            IEnumerable<int> excludeAllergenIds = null)
+        {
+            var dishes = await _dishRepository.GetAllWithCategoryAndAllergensAsync();
+            
+            // Apply filters
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                dishes = dishes.Where(d => d.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+            }
+            
+            if (categoryId.HasValue)
+            {
+                dishes = dishes.Where(d => d.CategoryId == categoryId.Value);
+            }
+            
+            if (onlyAvailable)
+            {
+                dishes = dishes.Where(d => d.Availability);
+            }
+            
+            if (excludeAllergenIds != null && excludeAllergenIds.Any())
+            {
+                dishes = dishes.Where(d => 
+                    !d.Allergens.Any(a => excludeAllergenIds.Contains(a.Id)));
+            }
+            
+            return dishes;
+        }
+
+        // Add this method to search meals by multiple criteria
+        public async Task<IEnumerable<Meal>> SearchMealsAsync(
+            string searchTerm = null, 
+            int? categoryId = null,
+            bool onlyAvailable = false,
+            IEnumerable<int> excludeAllergenIds = null)
+        {
+            var meals = await _mealRepository.GetAllWithDetailsAsync();
+            
+            // Apply filters
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                meals = meals.Where(m => m.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+            }
+            
+            if (categoryId.HasValue)
+            {
+                meals = meals.Where(m => m.CategoryId == categoryId.Value);
+            }
+            
+            // Filter by availability if needed
+            if (onlyAvailable)
+            {
+                var availableMealIds = new List<int>();
+                foreach (var meal in meals)
+                {
+                    if (await CheckMealAvailabilityAsync(meal.Id))
+                    {
+                        availableMealIds.Add(meal.Id);
+                    }
+                }
+                meals = meals.Where(m => availableMealIds.Contains(m.Id));
+            }
+            
+            // Filter by allergens if needed
+            if (excludeAllergenIds != null && excludeAllergenIds.Any())
+            {
+                meals = meals.Where(m => 
+                    !m.DishInMeals.Any(dm => 
+                        dm.Dish.Allergens.Any(a => 
+                            excludeAllergenIds.Contains(a.Id))));
+            }
+            
+            return meals;
         }
 
         #region Category Operations

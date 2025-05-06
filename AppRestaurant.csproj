@@ -31,4 +31,9 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Assets\Images\Dishes\" />
+      <Folder Include="Assets\Images\Meals\" />
+    </ItemGroup>
 </Project>

@@ -23,7 +23,7 @@ namespace AppRestaurant.ViewModels.Screens
             
             // Set default screen with its ViewModel
             var menuPage = new MenuPage();
-            menuPage.DataContext = new MenuPageViewModel();
+            menuPage.DataContext = new MenuViewModel();
             CurrentScreen = menuPage;
         }
 
@@ -34,7 +34,7 @@ namespace AppRestaurant.ViewModels.Screens
             
             // Set default screen with its ViewModel
             var menuPage = new MenuPage();
-            menuPage.DataContext = new MenuPageViewModel();
+            menuPage.DataContext = new MenuViewModel();
             CurrentScreen = menuPage;
         }
 
@@ -54,7 +54,7 @@ namespace AppRestaurant.ViewModels.Screens
         private void NavigateToMenuScreen()
         {
             var menuPage = new MenuPage();
-            menuPage.DataContext = new MenuPageViewModel();
+            menuPage.DataContext = new MenuViewModel();
             CurrentScreen = menuPage;
         }
         

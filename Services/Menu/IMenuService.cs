@@ -52,5 +52,17 @@ namespace AppRestaurant.Services.Menu
         Task<IEnumerable<DishInMeal>> GetDishesByMealIdAsync(int mealId);
         Task AddDishToMealAsync(int mealId, int dishId, decimal servingSize, decimal price);
         Task RemoveDishFromMealAsync(int mealId, int dishId);
+        
+        Task<IEnumerable<Dish>> SearchDishesAsync(
+            string searchTerm = null, 
+            int? categoryId = null, 
+            bool onlyAvailable = false,
+            IEnumerable<int> excludeAllergenIds = null);
+            
+        Task<IEnumerable<Meal>> SearchMealsAsync(
+            string searchTerm = null, 
+            int? categoryId = null,
+            bool onlyAvailable = false,
+            IEnumerable<int> excludeAllergenIds = null);
     }
 }

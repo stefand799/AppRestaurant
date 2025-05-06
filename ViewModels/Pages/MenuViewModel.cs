@@ -7,10 +7,11 @@ using CommunityToolkit.Mvvm.Input;
 using AppRestaurant.Models;
 using AppRestaurant.Services.Menu;
 using AppRestaurant.ViewModels.Components;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AppRestaurant.ViewModels.Pages
 {
-    public partial class MenuPageViewModel : ViewModelBase
+    public partial class MenuViewModel : ViewModelBase
     {
         private readonly IMenuService _menuService;
 
@@ -30,6 +31,10 @@ namespace AppRestaurant.ViewModels.Pages
         [ObservableProperty]
         private ObservableCollection<Allergen> _selectedAllergens = new ObservableCollection<Allergen>();
         
+        // Add this property for binding to UI
+        [ObservableProperty]
+        private string _allergenSelectionSummary = "None selected";
+        
         // Collections for menu items
         [ObservableProperty]
         private ObservableCollection<FoodTileViewModel> _foodItems = new ObservableCollection<FoodTileViewModel>();
@@ -40,28 +45,67 @@ namespace AppRestaurant.ViewModels.Pages
         [ObservableProperty]
         private ObservableCollection<Allergen> _allergens = new ObservableCollection<Allergen>();
         
-        // Selected category for filtering
-        [ObservableProperty]
-        private Category _currentCategory;
-        
         // Is data loading indicator
         [ObservableProperty]
         private bool _isLoading = false;
         
         // Default constructor for design-time
-        public MenuPageViewModel()
+        public MenuViewModel()
         {
-            // In design time, just load some dummy data
-            LoadDummyData();
+            // Try to get MenuService from IoC container if available
+            _menuService = App.ServiceProvider?.GetService<IMenuService>();
+            
+            // If not available (design time), just load dummy data
+            if (_menuService == null)
+            {
+                LoadDummyData();
+            }
+            else
+            {
+                // Load data asynchronously
+                _ = LoadDataAsync();
+            }
+            
+            // Set up property changed handler to update the summary
+            PropertyChanged += (sender, e) => {
+                if (e.PropertyName == nameof(SelectedAllergens))
+                {
+                    UpdateAllergenSelectionSummary();
+                }
+            };
         }
         
         // Constructor with dependencies for runtime
-        public MenuPageViewModel(IMenuService menuService)
+        public MenuViewModel(IMenuService menuService)
         {
             _menuService = menuService;
             
             // Load data asynchronously
-            Task.Run(async () => await LoadDataAsync());
+            _ = LoadDataAsync();
+            
+            // Set up property changed handler to update the summary
+            PropertyChanged += (sender, e) => {
+                if (e.PropertyName == nameof(SelectedAllergens))
+                {
+                    UpdateAllergenSelectionSummary();
+                }
+            };
+        }
+        
+        private void UpdateAllergenSelectionSummary()
+        {
+            if (SelectedAllergens.Count == 0)
+            {
+                AllergenSelectionSummary = "None selected";
+            }
+            else if (SelectedAllergens.Count <= 2)
+            {
+                AllergenSelectionSummary = string.Join(", ", SelectedAllergens.Select(a => a.Name));
+            }
+            else
+            {
+                AllergenSelectionSummary = $"{SelectedAllergens.Count} allergens selected";
+            }
         }
         
         private async Task LoadDataAsync()
@@ -86,13 +130,18 @@ namespace AppRestaurant.ViewModels.Pages
                     Allergens.Add(allergen);
                 }
                 
-                // Load dishes and meals
+                // Load menu items with current filters
                 await LoadMenuItemsAsync();
             }
             catch (Exception ex)
             {
-                // In real app, handle this error (log it, show message, etc.)
                 Console.WriteLine($"Error loading data: {ex.Message}");
+                
+                // If we fail to load actual data, load dummy data for development
+                if (_menuService == null)
+                {
+                    LoadDummyData();
+                }
             }
             finally
             {
@@ -104,33 +153,20 @@ namespace AppRestaurant.ViewModels.Pages
         {
             try
             {
+                IsLoading = true;
                 FoodItems.Clear();
                 
-                // Get all dishes
-                var dishes = await _menuService.GetAllDishesAsync();
+                // Get the excluded allergen IDs
+                var excludeAllergenIds = AllergenFilterActive && SelectedAllergens.Any() 
+                    ? SelectedAllergens.Select(a => a.Id).ToList() 
+                    : null;
                 
-                // Filter if needed
-                if (ShowOnlyAvailable)
-                {
-                    dishes = dishes.Where(d => d.Availability).ToList();
-                }
-                
-                if (SelectedCategory != null)
-                {
-                    dishes = dishes.Where(d => d.CategoryId == SelectedCategory.Id).ToList();
-                }
-                
-                if (!string.IsNullOrWhiteSpace(SearchText))
-                {
-                    dishes = dishes.Where(d => d.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
-                }
-                
-                if (AllergenFilterActive && SelectedAllergens.Any())
-                {
-                    var allergenIds = SelectedAllergens.Select(a => a.Id).ToList();
-                    dishes = dishes.Where(d => 
-                        !d.Allergens.Any(a => allergenIds.Contains(a.Id))).ToList();
-                }
+                // Get dishes with filters
+                var dishes = await _menuService.SearchDishesAsync(
+                    SearchText, 
+                    SelectedCategory?.Id, 
+                    ShowOnlyAvailable,
+                    excludeAllergenIds);
                 
                 // Map dishes to FoodTileViewModel
                 foreach (var dish in dishes)
@@ -140,45 +176,34 @@ namespace AppRestaurant.ViewModels.Pages
                         Id = dish.Id,
                         Name = dish.Name,
                         Price = dish.Price,
-                        ImagePath = dish.ImageUrl,
+                        ImagePath = dish.ImageUrl ?? "/Assets/placeholder-food.png",
                         IsAvailable = dish.Availability,
                         ItemType = "Dish"
                     });
                 }
                 
-                // Get all meals
-                var meals = await _menuService.GetAllMealsAsync();
+                // Get meals with filters
+                var meals = await _menuService.SearchMealsAsync(
+                    SearchText, 
+                    SelectedCategory?.Id, 
+                    ShowOnlyAvailable,
+                    excludeAllergenIds);
                 
-                // Filter if needed
-                if (SelectedCategory != null)
-                {
-                    meals = meals.Where(m => m.CategoryId == SelectedCategory.Id).ToList();
-                }
-                
-                if (!string.IsNullOrWhiteSpace(SearchText))
-                {
-                    meals = meals.Where(m => m.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
-                }
-                
-                // Check availability for each meal
+                // Map meals to FoodTileViewModel
                 foreach (var meal in meals)
                 {
-                    bool isAvailable = await _menuService.CheckMealAvailabilityAsync(meal.Id);
-                    
-                    if (ShowOnlyAvailable && !isAvailable)
-                    {
-                        continue;
-                    }
-                    
-                    // Calculate final price with discount
+                    // Calculate price with discount
                     decimal finalPrice = await _menuService.CalculateMealPriceAsync(meal.Id);
+                    
+                    // Check availability
+                    bool isAvailable = await _menuService.CheckMealAvailabilityAsync(meal.Id);
                     
                     FoodItems.Add(new FoodTileViewModel
                     {
                         Id = meal.Id,
                         Name = meal.Name,
                         Price = finalPrice,
-                        ImagePath = meal.ImageUrl,
+                        ImagePath = meal.ImageUrl ?? "/Assets/placeholder-food.png",
                         IsAvailable = isAvailable,
                         ItemType = "Meal"
                     });
@@ -193,6 +218,10 @@ namespace AppRestaurant.ViewModels.Pages
                 {
                     LoadDummyData();
                 }
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
         
@@ -232,7 +261,8 @@ namespace AppRestaurant.ViewModels.Pages
                     Price = Math.Round(random.Next(599, 2499) / 100.0m, 2),
                     Quantity = 1,
                     IsAvailable = random.Next(10) > 1, // 90% chance of being available
-                    ItemType = random.Next(2) == 0 ? "Dish" : "Meal"
+                    ItemType = random.Next(2) == 0 ? "Dish" : "Meal",
+                    ImagePath = "/Assets/placeholder-food.png"
                 });
             }
         }
@@ -240,10 +270,9 @@ namespace AppRestaurant.ViewModels.Pages
         [RelayCommand]
         private async Task Search()
         {
-            IsLoading = true;
-            
             try
             {
+                IsLoading = true;
                 await LoadMenuItemsAsync();
             }
             catch (Exception ex)
@@ -259,10 +288,9 @@ namespace AppRestaurant.ViewModels.Pages
         [RelayCommand]
         private async Task ApplyFilters()
         {
-            IsLoading = true;
-            
             try
             {
+                IsLoading = true;
                 await LoadMenuItemsAsync();
             }
             catch (Exception ex)
@@ -284,10 +312,9 @@ namespace AppRestaurant.ViewModels.Pages
             AllergenFilterActive = false;
             SelectedAllergens.Clear();
             
-            IsLoading = true;
-            
             try
             {
+                IsLoading = true;
                 await LoadMenuItemsAsync();
             }
             catch (Exception ex)
@@ -301,55 +328,36 @@ namespace AppRestaurant.ViewModels.Pages
         }
         
         [RelayCommand]
-        private async Task SelectCategory(Category category)
+        public void ToggleAllergen(Allergen allergen)
         {
-            IsLoading = true;
+            if (allergen == null) return;
             
-            try
-            {
-                CurrentCategory = category;
-                SelectedCategory = category;
-                await LoadMenuItemsAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error selecting category: {ex.Message}");
-            }
-            finally
-            {
-                IsLoading = false;
-            }
-        }
-        
-        [RelayCommand]
-        private async Task SelectAllCategories()
-        {
-            IsLoading = true;
+            // Check if the allergen is already selected
+            var existingAllergen = SelectedAllergens.FirstOrDefault(a => a.Id == allergen.Id);
             
-            try
+            if (existingAllergen != null)
             {
-                CurrentCategory = null;
-                SelectedCategory = null;
-                await LoadMenuItemsAsync();
+                // If found, remove it
+                SelectedAllergens.Remove(existingAllergen);
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Error selecting all categories: {ex.Message}");
+                // If not found, add it
+                SelectedAllergens.Add(allergen);
             }
-            finally
-            {
-                IsLoading = false;
-            }
+            
+            // Update the summary
+            UpdateAllergenSelectionSummary();
         }
         
         [RelayCommand]
         private void ViewFoodDetails(int foodItemId)
         {
             // This would navigate to the food details page in a real app
-            // For now, we'll just print to the console for debugging
             Console.WriteLine($"Viewing food item with ID: {foodItemId}");
             
-            // In the customer/guest view models, this would be implemented to handle navigation
+            // This will be implemented in the parent view model (GuestViewModel or CustomerViewModel)
+            // to handle navigation to the product details page
         }
     }
 }
